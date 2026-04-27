@@ -7,8 +7,10 @@ import watchlistRouter from './routes/watchlistRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import yaml from 'js-yaml';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(morgan('tiny'));
 
