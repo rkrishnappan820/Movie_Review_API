@@ -1,0 +1,886 @@
+openapi: 3.0.3
+
+info:
+  title: Movie Review API
+  version: 1.0.0
+  description: API documentation for Movie Review API
+
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Auth
+    description: User authentication endpoints
+  - name: Movie
+    description: Operations related to Movie
+  - name: Watchlist
+    description: Operations related to Watchlist
+  - name: Review
+    description: Operations related to Review
+  - name: Watchlist-Movie
+    description: Managing Movies within a Watchlist
+
+paths:
+  /movies:
+    get:
+      tags:
+        - Movie
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+        - $ref: '#/components/parameters/SortQuery'
+      summary: Get all movies
+      description: Retrieve a list of movie objects of all movies in database
+      responses:
+        '200':
+          description: A list of movies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/InvalidQueryData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Movie
+      security:
+        - bearerAuth: []
+      summary: Create a new movie
+      description: Admin users can create a new movie by specifying details
+      requestBody:
+        description: The movie object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '201':
+          description: Movie created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/InvalidMovieInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /movies/{id}:
+    get:
+      tags:
+        - Movie
+      security:
+        - bearerAuth: []
+      summary: Get a specific movie by id
+      description: Retrieve a specific movie by id
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: A single movie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Update a movie by id
+      description: Admins can update a movie by id and at least one field in the request body
+      tags:
+        - Movie
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        description: Movie contents to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Movie'
+      responses:
+        '200':
+          description: Movie contents updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/InvalidMovieInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a movie by id
+      description: Admins can delete a movie by id
+      tags:
+        - Movie
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Successful deletion of movie
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticates users
+      description: Users can login and receive a JWT token
+      requestBody:
+        description: User login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '200':
+          description: Authentication Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jwt:
+                    type: string
+                example:
+                  jwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwicm9sZSI6Ik1FTUJFUiIsImlhdCI6MTc3NzA0MTg4MSwiZXhwIjoxNzc3MDQ5MDgxfQ.pL657vSROv'
+        '400':
+          $ref: '#/components/responses/InvalidUserData'
+        '401':
+          description: Invalid Credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Invalid credentials
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Exceeded max login attempts for given interval
+
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Users register to create an account
+      requestBody:
+        description: User signup credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '400':
+          $ref: '#/components/responses/InvalidUserData'
+        '201':
+          description: Successfully signed up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  role:
+                    type: string
+                example:
+                  id: 11
+                  email: 'janeDoe123@gmail.com'
+                  role: 'MEMBER'
+        '409':
+          description: Email already taken
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: Email has already been taken by another user
+
+  /reviews:
+    get:
+      tags:
+        - Review
+      security:
+        - bearerAuth: []
+      summary: Get all reviews
+      description: Retrieve all review objects
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+        - $ref: '#/components/parameters/SortQuery'
+      responses:
+        '200':
+          description: Successfully retrieved all Reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/InvalidQueryData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Review
+      security:
+        - bearerAuth: []
+      summary: Create new review
+      description: Authenticated users create new reviews by specifying body request contents
+      requestBody:
+        description: Review object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/InvalidReviewInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /reviews/{id}:
+    get:
+      tags:
+        - Review
+      security:
+        - bearerAuth: []
+      summary: Get review by id
+      description: Retrieves the review object by id
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Successfully retrieved the review by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Update a review by id
+      description: Users can update a review by id and at least one field in the request body must be present
+      tags:
+        - Review
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        description: Review object contents to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+      responses:
+        '200':
+          description: Review contents updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          $ref: '#/components/responses/InvalidMovieInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a review by id
+      description: Users who own the review can delete their review by id
+      tags:
+        - Review
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Successful deletion of Review
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /watchlists:
+    get:
+      tags:
+        - Watchlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/OffsetQuery'
+        - $ref: '#/components/parameters/LimitQuery'
+        - $ref: '#/components/parameters/OrderQuery'
+        - $ref: '#/components/parameters/SortQuery'
+      summary: Get all watchlists
+      description: Retrieve all watchlist names
+      responses:
+        '200':
+          description: Successful retrieval of watchlist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Watchlist'
+        '400':
+          $ref: '#/components/responses/InvalidWatchlistInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+        - Watchlist
+      security:
+        - bearerAuth: []
+      summary: Create a new watchlist
+      description: Users can create a new watchlist by specifying details
+      requestBody:
+        description: The watchlist object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Watchlist'
+      responses:
+        '201':
+          description: Watchlist created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watchlist'
+        '400':
+          $ref: '#/components/responses/InvalidWatchlistInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /watchlists/{id}:
+    get:
+      tags:
+        - Watchlist
+      security:
+        - bearerAuth: []
+      summary: Get watchlist by id
+      description: Retrieves the watchlist object by id
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Successfully retrieved the watchlist by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watchlist'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Update a watchlist by id
+      description: Users can update a watchlist by id and at least one field in the request body must be present
+      tags:
+        - Watchlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        description: Watchlist object contents to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Watchlist'
+      responses:
+        '200':
+          description: Watchlist contents updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Watchlist'
+        '400':
+          $ref: '#/components/responses/InvalidWatchlistInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete a watchlist by id
+      description: Users who own the watchlist can delete their watchlist by id
+      tags:
+        - Watchlist
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Successful deletion of Watchlist
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /watchlists/{id}/movies:
+    post:
+      tags:
+        - Watchlist-Movie
+      security:
+        - bearerAuth: []
+      summary: Add movie to watchlist
+      description: Users can add a movie to with own watchlist
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        description: Object that contains movieId which will be added to the watchlist
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                movieId:
+                  type: integer
+              example:
+                movieId: 2
+      responses:
+        '201':
+          description: Successfully added movie to watchlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/InvalidMovieWatchlistInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+        - Watchlist-Movie
+      security:
+        - bearerAuth: []
+      summary: Get all movies from a specific watchlist
+      description: Authenticated users can retrieve all movies from any user by watchlist id
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Successfully retrieved all movies from the specific watchlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 2
+                  watchlistName:
+                    type: string
+                    example: My Favorite Movies
+                  userId:
+                    type: integer
+                    example: 10
+                  movies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /watchlist/{id}/movies/{movieId}:
+    delete:
+      tags:
+        - Watchlist-Movie
+      security:
+        - bearerAuth: []
+      summary: Delete a movie from a watchlist
+      description: Users can delete a movie from their watchlist by specifying the movie id and watchlist id
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+        - name: movieId
+          in: path
+          required: true
+          description: Movie id to delete from watchlist
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '204':
+          description: Successfully deleted movie from watchlist
+        '400':
+          $ref: '#/components/responses/InvalidMovieWatchlistInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 2
+        title:
+          type: string
+          example: Get Out
+        yearOfRelease:
+          type: integer
+          example: 2017
+        genre:
+          type: string
+          example: Crime
+        runtime:
+          type: integer
+          example: 104
+        rating:
+          type: string
+          example: R
+        director:
+          type: string
+          example: Jordan Peele
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 2
+        starRating:
+          type: float
+          example: 6.5
+        title:
+          type: string
+          example: Scary Film!
+        description:
+          type: string
+          example: I would not advise to watch during the night time
+        createdAt:
+          type: string
+          readOnly: true
+          example: '2026-04-20T05:03:20.592Z'
+        userId:
+          type: integer
+          readOnly: true
+          example: 1
+        movieId:
+          type: integer
+          example: 2
+    Watchlist:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 2
+        watchlistName:
+          type: string
+          example: 'My Favorite Movies'
+        userId:
+          type: integer
+          readOnly: true
+          example: 5
+
+    AuthCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: 'janeDoe123@gmail.com'
+        password: 'qwerty123'
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: Resource id
+      schema:
+        type: integer
+        example: 2
+
+    SearchQuery:
+      name: search
+      in: query
+      required: false
+      description: search term
+      schema:
+        type: string
+        example: e
+
+    OffsetQuery:
+      name: offset
+      in: query
+      required: false
+      description: offset the number of movies
+      schema:
+        type: integer
+        example: 1
+
+    LimitQuery:
+      name: limit
+      in: query
+      required: false
+      description: limit the number of movies
+      schema:
+        type: integer
+        example: 1
+
+    OrderQuery:
+      name: order
+      in: query
+      required: false
+      description: order movies in ascending or descending order
+      schema:
+        type: string
+        example: asc
+
+    SortQuery:
+      name: sort
+      in: query
+      required: false
+      description: sort movies by other fields
+      schema:
+        type: string
+        example: id
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: 'Resource 2 not found'
+    InvalidId:
+      description: Invalid Id
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+          example:
+            errors:
+              - Id cannot be negative
+              - Id must be of integer type
+    InvalidMovieInput:
+      description: Bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              errors:
+                - Director name must be at least 5 characters long
+                - year of release must come between 1906 to 2026
+    InvalidReviewInput:
+      description: Bad request, invalid request body entries
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items: string
+            example:
+              errors:
+                - Title must have a minimum of 3 characters
+                - Star rating must be a float between 0 - 10
+    InvalidWatchlistInput:
+      description: Bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              errors:
+                - watchlist name must exist
+    InvalidMovieWatchlistInput:
+      description: Bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              errors:
+                - movieId must be positive
+    Unauthorized:
+      description: Client is not authenticated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: Not authenticated. Please provide a valid token.
+    Forbidden:
+      description: User does not have permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: 'Forbidden: insufficient permission'
+
+    InvalidUserData:
+      description: bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items: string
+            example:
+              errors:
+                - Email must exist
+                - Password must exist
+    InvalidQueryData:
+      description: Bad request, invalid  query arguments
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              errors:
+                - offset must have a minimum value of at least 1
+                - limit must be between 1 and 50
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

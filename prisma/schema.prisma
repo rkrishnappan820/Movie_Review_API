@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Movie{
+  id Int @id @default(autoincrement())
+  title String
+  yearOfRelease Int @map("year_of_release")
+  genre String 
+  runtime Int
+  rating String
+  director String
+  watchlists Watchlist[]
+  reviews Review[]
+
+  @@map("movies")
+}
+
+model Watchlist{
+  id Int  @id @default(autoincrement())
+  watchlistName String @map("watchlist_name")
+  userId Int @unique @map("user_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movies Movie[]
+  @@index([userId])
+  @@map("watchlists")
+}
+
+model Review{
+  id Int @id @default(autoincrement())
+  starRating Decimal @db.Decimal(3,1) @map("star_rating")
+  title String
+  description String
+  createdAt DateTime @default(now()) @map("created_at")
+  movieId Int @map("movie_id")
+  userId Int @map("user_id")
+
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade ) 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([movieId])
+  @@index([userId])
+  @@map("reviews")
+
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String 
+  role Role @default(MEMBER)
+  
+  review Review[]
+  watchlist Watchlist?
+  @@map("users")
+}
+
+enum Role{
+  MEMBER
+  ADMIN
+}
