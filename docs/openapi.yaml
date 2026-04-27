@@ -7,6 +7,9 @@ info:
 
 servers:
   - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://movie-review-api-service.onrender.com/api
+    description: Production server
 
 tags:
   - name: Auth
