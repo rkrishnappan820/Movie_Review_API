@@ -1,14 +1,19 @@
 {
-  "name": "final-project-template",
+  "name": "movie-review-api",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "node --env-file=.env --watch src/server.js",
-    "seed": "node prisma/seed.js"
+    "start": "node src/server.js",
+    "migrate:dev": "npx prisma migrate dev",
+    "migrate:deploy": "npx prisma migrate deploy",
+    "seed": "node prisma/seed.js",
+    "seed:dev": "node --env-file=.env prisma/seed.js",
+    "seed:prod": "node prisma/seed.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
