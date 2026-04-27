@@ -6,9 +6,9 @@ info:
   description: API documentation for Movie Review API
 
 servers:
-  - url: http://localhost:3000/api
+  - url: http://localhost:3000
     description: Local development server
-  - url: https://movie-review-api-service.onrender.com/api
+  - url: https://movie-review-api-service.onrender.com
     description: Production server
 
 tags:
@@ -22,9 +22,11 @@ tags:
     description: Operations related to Review
   - name: Watchlist-Movie
     description: Managing Movies within a Watchlist
+  - name: Health
+    description: Monitoring status of api
 
 paths:
-  /movies:
+  /api/movies:
     get:
       tags:
         - Movie
@@ -79,7 +81,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
-  /movies/{id}:
+  /api/movies/{id}:
     get:
       tags:
         - Movie
@@ -154,7 +156,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /auth/login:
+  /api/auth/login:
     post:
       tags:
         - Auth
@@ -204,7 +206,7 @@ paths:
                 example:
                   error: Exceeded max login attempts for given interval
 
-  /auth/signup:
+  /api/auth/signup:
     post:
       tags:
         - Auth
@@ -249,7 +251,7 @@ paths:
                 example:
                   error: Email has already been taken by another user
 
-  /reviews:
+  /api/reviews:
     get:
       tags:
         - Review
@@ -304,7 +306,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
-  /reviews/{id}:
+  /api/reviews/{id}:
     get:
       tags:
         - Review
@@ -379,7 +381,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /watchlists:
+  /api/watchlists:
     get:
       tags:
         - Watchlist
@@ -434,7 +436,7 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
-  /watchlists/{id}:
+  /api/watchlists/{id}:
     get:
       tags:
         - Watchlist
@@ -509,7 +511,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /watchlists/{id}/movies:
+  /api/watchlists/{id}/movies:
     post:
       tags:
         - Watchlist-Movie
@@ -583,7 +585,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /watchlist/{id}/movies/{movieId}:
+  /api/watchlist/{id}/movies/{movieId}:
     delete:
       tags:
         - Watchlist-Movie
@@ -611,6 +613,24 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Monitors health of API
+      description: Production server monitors this endpoint to ensure the API is working smoothly
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                example:
+                  status: ok
 
 components:
   schemas:
