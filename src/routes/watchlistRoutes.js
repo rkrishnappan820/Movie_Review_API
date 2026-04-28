@@ -18,6 +18,7 @@ import {
 } from '../middleware/validateWatchlist.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { authorizeWatchlistOwnership } from '../middleware/authorizeOwnership.js';
+import { authorizeRoles } from '../middleware/authorizeRoles.js';
 
 const watchlistRouter = express.Router();
 watchlistRouter.get(
@@ -35,6 +36,7 @@ watchlistRouter.get(
 watchlistRouter.post(
   '/',
   authenticate,
+  authorizeRoles('MEMBER'),
   validateCreateAndUpdateWatchlist,
   createWatchlistHandler,
 );
