@@ -585,7 +585,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /api/watchlist/{id}/movies/{movieId}:
+  /api/watchlists/{id}/movies/{movieId}:
     delete:
       tags:
         - Watchlist-Movie
@@ -735,7 +735,7 @@ components:
       name: offset
       in: query
       required: false
-      description: offset the number of movies
+      description: offset the number of objects
       schema:
         type: integer
         example: 1
@@ -744,7 +744,7 @@ components:
       name: limit
       in: query
       required: false
-      description: limit the number of movies
+      description: limit the number of objects returned
       schema:
         type: integer
         example: 1
@@ -753,7 +753,7 @@ components:
       name: order
       in: query
       required: false
-      description: order movies in ascending or descending order
+      description: order objects in ascending or descending order
       schema:
         type: string
         example: asc
@@ -762,7 +762,7 @@ components:
       name: sort
       in: query
       required: false
-      description: sort movies by other fields
+      description: sort objects by other fields
       schema:
         type: string
         example: id
