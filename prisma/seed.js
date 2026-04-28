@@ -10,7 +10,7 @@ try {
   const usersData = [
     { email: 'admin@gmail.com', password: 'admin1234', role: 'ADMIN' },
     { email: 'alice@gmail.com', password: 'alice1234', role: 'MEMBER' },
-    { email: 'bob@gmail.com', password: 'bob1234', role: 'MEMBER' },
+    { email: 'bob@gmail.com', password: 'bob12345', role: 'MEMBER' },
   ];
 
   const users = [];
@@ -35,8 +35,8 @@ try {
     {
       title: 'Get Out',
       director: 'Jordan Peele',
-      genre: 'Crime',
-      rating: 'NC-17',
+      genre: 'Horror',
+      rating: 'R',
       runtime: 104,
       yearOfRelease: 2017,
     },
@@ -51,7 +51,7 @@ try {
     {
       title: 'Air',
       director: 'Ben Affleck',
-      genre: 'Sport',
+      genre: 'Sports',
       rating: 'R',
       runtime: 112,
       yearOfRelease: 2023,

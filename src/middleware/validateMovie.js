@@ -75,9 +75,10 @@ export const validateCreateMovie = [
       'Sci-Fi',
       'Thriller',
       'Western',
+      'Sports',
     ])
     .withMessage(
-      'genre must be of either Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Fantasy, Horror, Musical, Mystery, Romance, Sci-Fi, Thriller, or Western',
+      'genre must be of either Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Fantasy, Horror, Musical, Mystery, Romance, Sci-Fi, Sports, Thriller, or Western',
     ),
 
   body('title')
@@ -89,8 +90,8 @@ export const validateCreateMovie = [
     .bail()
     .trim()
     .escape()
-    .isLength({ min: 4 })
-    .withMessage('title name must be at least 4 characters long'),
+    .isLength({ min: 1 })
+    .withMessage('title name must be at least 1 character long'),
   body('rating')
     .exists({ checkFalsy: true })
     .withMessage('rating must exist')
@@ -155,11 +156,12 @@ export const validateUpdateMovie = [
       'Mystery',
       'Romance',
       'Sci-Fi',
+      'Sports',
       'Thriller',
       'Western',
     ])
     .withMessage(
-      'genre must be of either Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Fantasy, Horror, Musical, Mystery, Romance, Sci-Fi, Thriller, or Western',
+      'genre must be of either Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Fantasy, Horror, Musical, Mystery, Romance, Sci-Fi, Sports, Thriller, or Western',
     )
     .bail(),
 
@@ -170,8 +172,8 @@ export const validateUpdateMovie = [
     .bail()
     .trim()
     .escape()
-    .isLength({ min: 4 })
-    .withMessage('title name must be at least 4 characters long'),
+    .isLength({ min: 1 })
+    .withMessage('title name must be at least 1 character long'),
   body('rating')
     .optional()
     .isIn(['G', 'PG', 'PG-13', 'R', 'NC-17', 'NR/UR'])

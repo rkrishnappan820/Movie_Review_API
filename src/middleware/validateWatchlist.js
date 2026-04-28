@@ -1,4 +1,4 @@
-import { body, query, param, oneOf } from 'express-validator';
+import { body, query, param } from 'express-validator';
 import { handleValidationErrors } from './handleValidationErrors.js';
 
 export const validateGetAllWatchlists = [
