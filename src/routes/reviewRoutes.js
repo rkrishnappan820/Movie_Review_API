@@ -4,7 +4,7 @@ import {
   deleteReviewHandler,
   getReviewByIdHandler,
   getAllReviewsHandler,
-} from '../controllers/reviewHandler.js';
+} from '../controllers/reviewController.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { authorizeReviewOwnership } from '../middleware/authorizeOwnership.js';
 import { authorizeRoles } from '../middleware/authorizeRoles.js';
